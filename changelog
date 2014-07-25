@@ -1,3 +1,9 @@
+bouml (4.21-4) unstable; urgency=low
+
+  * Switched to remake_qt4() macro with the new REQUIRED argument
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 25 Jul 2014 09:55:00 +0100
+ 
 bouml (4.21-3) unstable; urgency=low
 
   * Removed spurious top-level Makefile
