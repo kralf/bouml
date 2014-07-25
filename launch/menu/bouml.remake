@@ -1,0 +1,23 @@
+?package(bouml):\
+  needs="X11"\
+  section="Applications/Programming"\
+  title="BOUML"\
+  longtitle="BOUML UML2 Modeler"\
+  command="${EXECUTABLE_PATH}/bouml"\
+  icon="${ICON_PATH}/hicolor/32x32/apps/bouml.png"
+
+?package(bouml):\
+  needs="X11"\
+  section="Applications/Programming"\
+  title="BOUML Project Control"\
+  longtitle="BOUML Project Control Tool"\
+  command="${EXECUTABLE_PATH}/bouml-project_control"\
+  icon="${ICON_PATH}/hicolor/32x32/apps/bouml-project_control.png"
+
+?package(bouml):\
+  needs="X11"\
+  section="Applications/Programming"\
+  title="BOUML Project Synchro"\
+  longtitle="BOUML Project Synchronization Tool"\
+  command="${EXECUTABLE_PATH}/bouml-project_synchro"\
+  icon="${ICON_PATH}/hicolor/32x32/apps/bouml-project_synchro.png"

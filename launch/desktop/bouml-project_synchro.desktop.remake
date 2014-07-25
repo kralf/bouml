@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=BOUML Project Synchro
+Type=Application
+Comment=BOUML project's files synchronization
+Exec=${EXECUTABLE_PATH}/bouml-project_synchro
+TryExec=bouml-project_synchro
+Icon=bouml-project_synchro
+Categories=Development;

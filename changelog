@@ -1,0 +1,12 @@
+bouml (4.21-2) unstable; urgency=low
+
+  * ReMake port and package distribution
+  * Fixed project control and synchronization tool to compile against Qt4
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 25 Jul 2014 09:06:00 +0100
+ 
+bouml (4.21-1) unstable; urgency=low
+
+  * Initial commit: Fork of SourceForge project bouml-ng
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 23 Jul 2014 07:52:46 +0100

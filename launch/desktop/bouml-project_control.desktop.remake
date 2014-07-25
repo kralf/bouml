@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=BOUML Project Control
+Type=Application
+Comment=BOUML project's files control
+Exec=${EXECUTABLE_PATH}/bouml-project_control
+TryExec=bouml-project_control
+Icon=bouml-project_control
+Categories=Development;

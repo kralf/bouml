@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=BOUML
+Type=Application
+Comment=Free UML 2 modeler
+Exec=${EXECUTABLE_PATH}/bouml
+TryExec=bouml
+Icon=bouml
+Categories=Development;

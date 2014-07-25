@@ -1,0 +1,58 @@
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+  <!ENTITY dhsection   "<manvolnum>${JADE_MAN_SECTION}</manvolnum>">
+  <!ENTITY dhemail     "<email>&lt;thomas.g.girard@free.fr&gt;</email>">
+  <!ENTITY dhusername  "Thomas Girard">
+  <!ENTITY dhucpackage "<refentrytitle>bouml-project_control</refentrytitle>">
+  <!ENTITY control     "bouml-project_control">
+  <!ENTITY debian      "<productname>Debian</productname>">
+  <!ENTITY gnu         "<acronym>GNU</acronym>">
+  <!ENTITY mansynchro "<citerefentry><refentrytitle>bouml-project_synchro</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
+  <!ENTITY manbouml   "<citerefentry><refentrytitle>bouml</refentrytitle><manvolnum>1</manvolnum></citerefentry>">
+  <!ENTITY seealso     "&mansynchro;, &manbouml;">
+]>
+
+<refentry>
+  <refmeta>
+    &dhucpackage;
+    &dhsection;
+  </refmeta>
+  <refnamediv>
+    <refname>&control;</refname>
+    <refpurpose>controls permissions on a shared bouml project</refpurpose>
+  </refnamediv>
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para><command>&control;</command> is a tool to choose who can modify
+      a given package and its elements in a shared bouml project.</para>
+  </refsect1>
+
+  <refsect1>
+    <title>ENVIRONMENT VARIABLES</title>
+    <variablelist>
+      <varlistentry>
+	<term><envar>BOUML_ID</envar></term>
+	<listitem>
+	  <para>user identifier between <constant>2</constant> and 
+	    <constant>127</constant>. This identifier is mandatory
+	    when sharing a bouml project.</para>
+	</listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>&seealso;</para>
+    <para>BOUML website: <ulink url="http://bouml.free.fr"></ulink></para>
+  </refsect1>
+
+  <refsect1>
+    <title>AUTHOR</title>
+    <para>BOUML was written by Bruno Pages
+      <email>&lt;bouml@free.fr&gt;</email></para>
+
+    <para>This manual page was written by &dhusername; &dhemail; for
+      the &debian; system (but may be used by others).</para>
+  </refsect1>
+</refentry>
