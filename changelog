@@ -1,3 +1,9 @@
+bouml (4.21-3) unstable; urgency=low
+
+  * Removed spurious top-level Makefile
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 25 Jul 2014 09:21:00 +0100
+ 
 bouml (4.21-2) unstable; urgency=low
 
   * ReMake port and package distribution
