@@ -199,19 +199,6 @@ ClassDiagramWindow::ClassDiagramWindow(const QString & s, BrowserClassDiagram * 
 }
 
 ClassDiagramWindow::~ClassDiagramWindow() {
-  if (! no_save) {
-    QString warning = "!";
-    BooL is_new = FALSE;
-    
-    save("d", warning, is_new);
-    warning.remove(0, 1);	// removes !
-    view->hide();
-    
-    if (!warning.isEmpty())
-      warn(warning);
-  }
-  
-  browser_node->on_close();
 }
 
 DiagramView * ClassDiagramWindow::get_view() const {
@@ -307,3 +294,18 @@ void ClassDiagramWindow::hit_image() {
   hit_button(UmlImage, image);
 }
 
+void ClassDiagramWindow::on_destroy() {
+  if (! no_save) {
+    QString warning = "!";
+    BooL is_new = FALSE;
+    
+    save("d", warning, is_new);
+    warning.remove(0, 1); // removes !
+    view->hide();
+    
+    if (!warning.isEmpty())
+      warn(warning);
+  }
+  
+  browser_node->on_close();
+}

@@ -27,20 +27,11 @@
 
 
 
-#include <qpainter.h>
-
 #include "MenuTitle.h"
 
-MenuTitle::MenuTitle(const QString & s, QFont f) : str(s), font(f) {
-  font.setBold(TRUE);
-}
-
-void MenuTitle::paint(QPainter * p, const QColorGroup& /*cg*/, bool /*act*/,
-		      bool /*enabled*/, int x, int y, int w, int h) {
-  p->setFont (font);
-  p->drawText( x, y, w, h, Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip, str);
-}
-
-QSize MenuTitle::sizeHint() {
-  return QFontMetrics(font).size(Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip, str);
+MenuTitle::MenuTitle(const QString & s, QFont f) {
+  f.setBold(TRUE);
+  
+  setText(s);
+  setFont(f);
 }

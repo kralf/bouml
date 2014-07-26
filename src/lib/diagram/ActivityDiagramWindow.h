@@ -91,6 +91,9 @@ virtual ~ActivityDiagramWindow();
     void hit_anchor();
     void hit_text();
     void hit_image();
+    
+  protected:
+    void on_destroy();
 };
 
 #endif

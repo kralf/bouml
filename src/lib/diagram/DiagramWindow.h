@@ -105,6 +105,11 @@ virtual ~DiagramWindow();
     
   protected slots:
     void hit_select();
+    
+  protected:
+    void destroy(bool destroyWindow = true, bool destroySubWindows = true);
+    
+    virtual void on_destroy();
 };
 
 #endif

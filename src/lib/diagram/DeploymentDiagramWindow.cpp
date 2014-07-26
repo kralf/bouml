@@ -185,19 +185,6 @@ DeploymentDiagramWindow::DeploymentDiagramWindow(const QString & s, BrowserDeplo
 }
 
 DeploymentDiagramWindow::~DeploymentDiagramWindow() {
-  if (! no_save) {
-    QString warning = "!";
-    BooL is_new = FALSE;
-    
-    save("d", warning, is_new);
-    warning.remove(0, 1);	// removes !
-    view->hide();
-    
-    if (!warning.isEmpty())
-      warn(warning);
-  }
-  
-  browser_node->on_close();
 }
 
 DiagramView * DeploymentDiagramWindow::get_view() const {
@@ -281,4 +268,20 @@ void DeploymentDiagramWindow::hit_text() {
 
 void DeploymentDiagramWindow::hit_image() {
   hit_button(UmlImage, image);
+}
+
+void DeploymentDiagramWindow::on_destroy() {
+  if (! no_save) {
+    QString warning = "!";
+    BooL is_new = FALSE;
+    
+    save("d", warning, is_new);
+    warning.remove(0, 1); // removes !
+    view->hide();
+    
+    if (!warning.isEmpty())
+      warn(warning);
+  }
+  
+  browser_node->on_close();
 }

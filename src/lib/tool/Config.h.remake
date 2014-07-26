@@ -23,16 +23,9 @@
 //
 // *************************************************************************
 
-#ifndef MENUTITLE_H
-#define MENUTITLE_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#include <qmenudata.h> 
-#include <QMenuItem>
-
-class MenuTitle : public QMenuItem {
-  public:
-    MenuTitle(const QString & s, QFont f);
-    virtual ~MenuTitle(){};
-};
+#define TOOL_PATH "${PLUGIN_PATH}"
 
 #endif

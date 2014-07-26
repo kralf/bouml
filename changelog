@@ -1,3 +1,14 @@
+bouml (4.21-5) unstable; urgency=low
+
+  * Fixed history loading
+  * Moved window's browser_node->on_close() from destructor to on_destroy()
+    handler (fixing segmentation faults due to browser_node being invalid)
+  * Fixed popup menu titles
+  * Fixed tool execution by adding the tool path to the system command
+    (breaking cross-platform compatibility)
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Sat, 26 Jul 2014 06:53:00 +0100
+ 
 bouml (4.21-4) unstable; urgency=low
 
   * Switched to remake_qt4() macro with the new REQUIRED argument

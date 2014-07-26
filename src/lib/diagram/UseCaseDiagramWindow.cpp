@@ -180,19 +180,6 @@ UseCaseDiagramWindow::UseCaseDiagramWindow(const QString & s, BrowserUseCaseDiag
 }
 
 UseCaseDiagramWindow::~UseCaseDiagramWindow() {
-  if (! no_save) {
-    QString warning = "!";
-    BooL is_new = FALSE;
-    
-    save("d", warning, is_new);
-    warning.remove(0, 1);	// removes !
-    view->hide();
-    
-    if (!warning.isEmpty())
-      warn(warning);
-  }
-  
-  browser_node->on_close();
 }
 
 DiagramView * UseCaseDiagramWindow::get_view() const {
@@ -273,3 +260,18 @@ void UseCaseDiagramWindow::hit_image() {
   hit_button(UmlImage, image);
 }
 
+void UseCaseDiagramWindow::on_destroy() {
+  if (! no_save) {
+    QString warning = "!";
+    BooL is_new = FALSE;
+    
+    save("d", warning, is_new);
+    warning.remove(0, 1); // removes !
+    view->hide();
+    
+    if (!warning.isEmpty())
+      warn(warning);
+  }
+  
+  browser_node->on_close();
+}

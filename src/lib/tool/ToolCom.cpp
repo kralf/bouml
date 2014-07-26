@@ -42,6 +42,7 @@ using namespace std;
 
 #include <qtimer.h>
 
+#include "Config.h"
 #include "ToolCom.h"
 #include "Socket.h"
 #include "BrowserNode.h"
@@ -154,39 +155,10 @@ int ToolCom::run(const char * cmd, BrowserNode * bn,
   
   unsigned port = com->bind(1024);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  QString s = cmd;
+  QString s;
   
+  s = "PATH=$PATH:" TOOL_PATH " && ";
+  s += cmd;
   s += ' ';
   s += QString::number(port);
   s += '&';

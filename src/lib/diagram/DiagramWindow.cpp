@@ -250,3 +250,13 @@ QString DiagramWindow::copy_selected() const {
   return diagram_def;
 }
 
+void DiagramWindow::destroy(bool destroyWindow, bool destroySubWindows) {
+  if( destroyWindow)
+    on_destroy();
+  
+  Q3MainWindow::destroy(destroyWindow, destroySubWindows);
+}
+
+void DiagramWindow::on_destroy() {
+  // implement in subclasses
+}

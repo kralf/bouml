@@ -252,19 +252,6 @@ ActivityDiagramWindow::ActivityDiagramWindow(const QString & s, BrowserActivityD
 }
 
 ActivityDiagramWindow::~ActivityDiagramWindow() {
-  if (! no_save) {
-    QString warning = "!";
-    BooL is_new = FALSE;
-    
-    save("d", warning, is_new);
-    warning.remove(0, 1);	// removes !
-    view->hide();
-    
-    if (!warning.isEmpty())
-      warn(warning);
-  }
-  
-  browser_node->on_close();
 }
 
 DiagramView * ActivityDiagramWindow::get_view() const {
@@ -386,4 +373,20 @@ void ActivityDiagramWindow::hit_text() {
 
 void ActivityDiagramWindow::hit_image() {
   hit_button(UmlImage, image);
+}
+
+void ActivityDiagramWindow::on_destroy() {
+  if (! no_save) {
+    QString warning = "!";
+    BooL is_new = FALSE;
+    
+    save("d", warning, is_new);
+    warning.remove(0, 1); // removes !
+    view->hide();
+    
+    if (!warning.isEmpty())
+      warn(warning);
+  }
+  
+  browser_node->on_close();
 }

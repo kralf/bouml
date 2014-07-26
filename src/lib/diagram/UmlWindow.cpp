@@ -80,7 +80,7 @@
 #include "ToolDialog.h"
 #include "BrowserSearchDialog.h"
 #include "ShortcutDialog.h"
-#include "GreetingsDialog.h"
+//#include "GreetingsDialog.h"
 #include "BasicData.h"
 #include "ToolCom.h"
 #include "About.h"
@@ -428,11 +428,11 @@ UmlWindow::UmlWindow(bool batch) : Q3MainWindow(0, "Bouml", Qt::WDestructiveClos
     fclose(fp);
   }
     
-  if (!batch && ((Counter++ % 30) == 0)) {
-    GreetingsDialog d;
-    
-    d.exec();
-  }
+  //if (!batch && ((Counter++ % 30) == 0)) {
+  //  GreetingsDialog d;
+  //  
+  //  d.exec();
+  //}
     
   //
   
@@ -575,16 +575,16 @@ produced for an attribute etc..., and to set the root directories"));
 }
 
 void UmlWindow::historicActivated(int id) {
-  //QString str = historic.at(id); //[lgfreitas] at does not return a iterator anymore
-  // [lgfreitas] Loading from history disabled as it is buggy somewhere
-  /*if (id != historic.size()-1) {
+  QString str = historic.at(id);
+  
+  if (id != historic.size()-1) {
     close();
   
     if (browser->get_project() == 0)
-      load(historic.at(id));
+      load(str);
     else
       statusBar()->message(TR("Loading aborted"), 2000);
-  }*/
+  }
 }
 
 void UmlWindow::clear()
