@@ -2241,11 +2241,12 @@ bool DiagramView::svg_save_in(const char * f, bool optimal, bool temporary) {
     
     if ((visibleWidth() >= (maxx + 90)) && (visibleHeight() >= (maxy + 90))) {
       if (start_svg(f, maxx, maxy)) {
-	result = TRUE;
-	history_protected = TRUE;
-	the_canvas()->setAllChanged();
-	canvas()->update();
-	history_protected = FALSE;
+        result = TRUE;
+        history_protected = TRUE;
+        the_canvas()->setAllChanged();
+        canvas()->update();
+        QApplication::processEvents();
+        history_protected = FALSE;
         end_svg();
       }
     }
@@ -2259,19 +2260,16 @@ bool DiagramView::svg_save_in(const char * f, bool optimal, bool temporary) {
       
       window()->resize(maxx + 90, maxy + 90);
       if (start_svg(f, maxx, maxy)) {
-	result = TRUE;
-	history_protected = TRUE;
-	the_canvas()->setAllChanged();
-	canvas()->update();
-	history_protected = FALSE;
+        result = TRUE;
+        history_protected = TRUE;
+        the_canvas()->setAllChanged();
+        canvas()->update();
+        QApplication::processEvents();
+        history_protected = FALSE;
         end_svg();
       }
       if (! temporary) {
-
-
-
-	window()->resize(saved_w, saved_h);
-
+        window()->resize(saved_w, saved_h);
       }
     }
     if (! temporary)

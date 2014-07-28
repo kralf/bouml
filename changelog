@@ -1,3 +1,9 @@
+bouml (4.21-6) unstable; urgency=low
+
+  * Fixed SVG export
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Mon, 28 Jul 2014 07:28:00 +0100
+ 
 bouml (4.21-5) unstable; urgency=low
 
   * Fixed history loading
