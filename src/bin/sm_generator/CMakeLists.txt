@@ -7,6 +7,6 @@ remake_qt4_moc(stmgen)
 remake_add_executable(
   stmgen *.cpp
   PREFIX OFF
-  LINK ${QT_QT3SUPPORT_LIBRARY} ${QT_QTNETWORK_LIBRARY}
+  LINK ${QT_LIBRARIES}
   INSTALL ${PLUGIN_DESTINATION}
 )

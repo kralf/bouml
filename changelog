@@ -1,3 +1,9 @@
+bouml (4.21-9) unstable; urgency=low
+
+  * Fixed Qt library linkage for trusty
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 29 Jul 2014 10:14:00 +0100
+ 
 bouml (4.21-8) unstable; urgency=low
 
   * Fixed bug in SVG export that would lead to all items clipped by the

@@ -6,6 +6,6 @@ remake_qt4_moc(file_control)
 remake_add_executable(
   file_control *.cpp
   PREFIX OFF
-  LINK ${QT_QT3SUPPORT_LIBRARY} ${QT_QTNETWORK_LIBRARY}
+  LINK ${QT_LIBRARIES}
   INSTALL ${PLUGIN_DESTINATION}
 )

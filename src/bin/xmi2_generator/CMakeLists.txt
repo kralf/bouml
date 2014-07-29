@@ -11,6 +11,6 @@ remake_qt4_moc(gxmi2)
 remake_add_executable(
   gxmi2 *.cpp
   PREFIX OFF
-  LINK ${QT_QT3SUPPORT_LIBRARY} ${QT_QTNETWORK_LIBRARY}
+  LINK ${QT_LIBRARIES}
   INSTALL ${PLUGIN_DESTINATION}
 )

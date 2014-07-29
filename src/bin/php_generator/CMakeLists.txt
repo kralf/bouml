@@ -80,6 +80,6 @@ remake_add_executable(
     ../../lib/uml/UmlBaseView.cpp
     ../../lib/uml/UmlBaseClassInstance.cpp
   PREFIX OFF
-  LINK ${QT_QT3SUPPORT_LIBRARY} ${QT_QTNETWORK_LIBRARY}
+  LINK ${QT_LIBRARIES}
   INSTALL ${PLUGIN_DESTINATION}
 )

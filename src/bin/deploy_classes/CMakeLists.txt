@@ -11,6 +11,6 @@ remake_qt4_moc(deplcl)
 remake_add_executable(
   deplcl *.cpp
   PREFIX OFF
-  LINK ${QT_QT3SUPPORT_LIBRARY} ${QT_QTNETWORK_LIBRARY}
+  LINK ${QT_LIBRARIES}
   INSTALL ${PLUGIN_DESTINATION}
 )
