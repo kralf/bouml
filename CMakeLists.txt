@@ -55,3 +55,10 @@ remake_distribute_deb(
   DEPENDS remake libqt4-dev pkg-config docbook-utils
   PASS CMAKE_BUILD_TYPE BOUML_GIT_REVISION
 )
+remake_distribute_deb(
+  DISTRIBUTION trusty
+  SECTION devel
+  UPLOAD ppa:kralf/asl
+  DEPENDS remake libqt4-dev pkg-config docbook-utils
+  PASS CMAKE_BUILD_TYPE BOUML_GIT_REVISION
+)

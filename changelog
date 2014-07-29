@@ -1,3 +1,11 @@
+bouml (4.21-8) unstable; urgency=low
+
+  * Fixed bug in SVG export that would lead to all items clipped by the
+    canvas viewport to not appear in the output file
+  * Release distribution for Ubuntu Trusty Tahr
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 29 Jul 2014 08:38:00 +0100
+ 
 bouml (4.21-7) unstable; urgency=low
 
   * Fixed key shortcuts

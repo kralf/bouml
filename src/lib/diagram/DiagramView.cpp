@@ -2239,8 +2239,7 @@ bool DiagramView::svg_save_in(const char * f, bool optimal, bool temporary) {
         result = TRUE;
         history_protected = TRUE;
         the_canvas()->setAllChanged();
-        canvas()->update();
-        QApplication::processEvents();
+        QPixmap::grabWidget(viewport(), 0, 0, maxx, maxy);
         history_protected = FALSE;
         end_svg();
       }
@@ -2257,8 +2256,7 @@ bool DiagramView::svg_save_in(const char * f, bool optimal, bool temporary) {
         result = TRUE;
         history_protected = TRUE;
         the_canvas()->setAllChanged();
-        canvas()->update();
-        QApplication::processEvents();
+        QPixmap::grabWidget(viewport(), 0, 0, maxx, maxy);
         history_protected = FALSE;
         end_svg();
       }
@@ -2273,8 +2271,7 @@ bool DiagramView::svg_save_in(const char * f, bool optimal, bool temporary) {
     result = TRUE;
     history_protected = TRUE;
     the_canvas()->setAllChanged();
-    canvas()->update();
-    QApplication::processEvents();
+    QPixmap::grabWidget(viewport());
     history_protected = FALSE;
     end_svg();
   }
