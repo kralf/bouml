@@ -2189,7 +2189,6 @@ bool DiagramView::save_in(const char * f, bool optimal, bool temporary) {
     if ((visibleWidth() >= (maxx + 90)) && (visibleHeight() >= (maxy + 90)))
       r = QPixmap::grabWidget(viewport(), 0, 0, maxx, maxy).save(f, "PNG");
     else {
-
       int saved_w;
       int saved_h;
 
@@ -2201,11 +2200,7 @@ bool DiagramView::save_in(const char * f, bool optimal, bool temporary) {
       r = QPixmap::grabWidget(viewport(), 0, 0, maxx, maxy).save(f, "PNG");
 
       if (! temporary) {
-
-
-
-	window()->resize(saved_w, saved_h);
-
+        window()->resize(saved_w, saved_h);
       }
     }
     if (! temporary)
@@ -2251,7 +2246,6 @@ bool DiagramView::svg_save_in(const char * f, bool optimal, bool temporary) {
       }
     }
     else {
-
       int saved_w;
       int saved_h;
 
@@ -2280,6 +2274,7 @@ bool DiagramView::svg_save_in(const char * f, bool optimal, bool temporary) {
     history_protected = TRUE;
     the_canvas()->setAllChanged();
     canvas()->update();
+    QApplication::processEvents();
     history_protected = FALSE;
     end_svg();
   }

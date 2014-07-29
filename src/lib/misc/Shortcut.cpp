@@ -23,10 +23,6 @@
 //
 // *************************************************************************
 
-
-
-
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <qmap.h>
@@ -50,28 +46,28 @@ void Shortcut::init(bool conv)
 {
 #define MEMOKEY(name, code) \
 	NameToCode[#name] = code; \
-	CodeToName[code - 0x1000 + 128] = #name; \
+	CodeToName[code - Qt::Key_Escape + 128] = #name; \
 	ShortcutKeys.append(#name)
 
-  MEMOKEY(Escape, 0x1000);
-  MEMOKEY(Tab, 0x1001);
-  MEMOKEY(Backtab, 0x1002);
-  MEMOKEY(Backspace, 0x1003);
-  MEMOKEY(Return, 0x1004);
-  MEMOKEY(Enter, 0x1005);
-  MEMOKEY(Insert, 0x1006);
-  MEMOKEY(Delete, 0x1007);
-  MEMOKEY(Pause, 0x1008);
-  MEMOKEY(Print, 0x1009);
-  MEMOKEY(SysReq, 0x100a);
-  MEMOKEY(Home, 0x1010);
-  MEMOKEY(End, 0x1011);
-  MEMOKEY(Qt::DockLeft, 0x1012);
-  MEMOKEY(Up, 0x1013);
-  MEMOKEY(Qt::DockRight, 0x1014);
-  MEMOKEY(Down, 0x1015);
-  MEMOKEY(PageUp, 0x1016);
-  MEMOKEY(PageDown, 0x1017);
+  MEMOKEY(Escape, Qt::Key_Escape);
+  MEMOKEY(Tab, Qt::Key_Tab);
+  MEMOKEY(Backtab, Qt::Key_Backtab);
+  MEMOKEY(Backspace, Qt::Key_Backspace);
+  MEMOKEY(Return, Qt::Key_Return);
+  MEMOKEY(Enter, Qt::Key_Enter);
+  MEMOKEY(Insert, Qt::Key_Insert);
+  MEMOKEY(Delete, Qt::Key_Delete);
+  MEMOKEY(Pause, Qt::Key_Pause);
+  MEMOKEY(Print, Qt::Key_Print);
+  MEMOKEY(SysReq, Qt::Key_SysReq);
+  MEMOKEY(Home, Qt::Key_Home);
+  MEMOKEY(End, Qt::Key_End);
+  MEMOKEY(Left, Qt::Key_Left);
+  MEMOKEY(Up, Qt::Key_Up);
+  MEMOKEY(Right, Qt::Key_Right);
+  MEMOKEY(Down, Qt::Key_Down);
+  MEMOKEY(PageUp, Qt::Key_PageUp);
+  MEMOKEY(PageDown, Qt::Key_PageDown);
 			    
 #undef MEMOKEY
   
@@ -79,10 +75,10 @@ void Shortcut::init(bool conv)
   int code;
   char name[4];
   
-  for (i = 1, code = 0x1030; i != 36; i += 1, code += 1) {
+  for (i = 1, code = Qt::Key_F1; i != 36; i += 1, code += 1) {
     sprintf(name, "F%d", i);
     NameToCode[name] = code;
-    CodeToName[code - 0x1000 + 128] = name;
+    CodeToName[code - Qt::Key_Escape + 128] = name;
     ShortcutKeys.append(name);
   }
   
@@ -238,12 +234,12 @@ void Shortcut::init(bool conv)
 
 int codeToIndex(int c)
 {
-  return (c >= 0x1000) ? c - 0x1000 + 128 : c;
+  return (c >= Qt::Key_Escape) ? c - Qt::Key_Escape + 128 : c;
 }
 
 int indexToCode(int i)
 {
-  return (i >= 128) ? i - 128 + 0x1000 : i;
+  return (i >= 128) ? i - 128 + Qt::Key_Escape : i;
 }
 
 QString codeToName(int c)
@@ -303,10 +299,10 @@ QString Shortcut::shortcut(int key, int buttons)
   if (buttons & ::Qt::ShiftModifier) flags[0] += 1;
   if (buttons & ::Qt::ControlModifier) flags[0] += 2;
   if (buttons & ::Qt::AltModifier) flags[0] += 4;
-  
+
   QMap<QString, QString>::ConstIterator it =
     Shortcuts.find(QString(flags) + codeToName(key));
-  
+    
   return (it == Shortcuts.end()) ? QString::null : *it;
 }
 
