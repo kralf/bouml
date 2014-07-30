@@ -24,10 +24,6 @@
 //
 // *************************************************************************
 
-
-
-
-
 #include <qworkspace.h>
 #include <qnamespace.h>
 #include <qspinbox.h>
@@ -40,9 +36,6 @@
 //Added by qt3to4:
 #include <QTextOStream>
 #include <Q3TextStream>
-
-
-
 
 #include "BrowserDiagram.h"
 #include "DiagramWindow.h"
@@ -57,7 +50,9 @@ static QString zoomText() { return TR("Enter a new scale value or use the arrows
 static QString fitzoomText() { return TR("Click this button to compute the <i>fit scale</i> allowing to try to show all the diagram"); }
 static QString optwinsizeText() { return TR("Click this button to compute the smallest window size allowing to show all the diagram"); }
 static QString editText() { return TR("Click this button to call the diagram menu like on a right mouse click"
-				      " done out of any element"); }
+                                      " done out of any element"); }
+static QString snapgridText() { return TR("Click this button to snap diagram elements to grid"); }
+static QString gridText() { return TR("Enter a new grid size or use the arrows to change the <i>grid</i>"); }
 
 DiagramWindow::DiagramWindow(BrowserDiagram * br, const QString & s)
     : Q3MainWindow(UmlWindow::get_workspace(), (const char *) s, Qt::WDestructiveClose),
@@ -90,16 +85,40 @@ void DiagramWindow::selectOn() {
   hit_select();
 }
 
+void DiagramWindow::set_snap_to_grid(bool s) {
+  grid->setOn(s);
+}
+
+bool DiagramWindow::snap_to_grid() const {
+  return grid->isOn();
+}
+
 void DiagramWindow::hit_select() {
   hit_button(UmlSelect, select);
 }
 
+void DiagramWindow::hit_snap_to_grid() {
+}
+
 void DiagramWindow::add_edit_button(Q3ToolBar *toolbar) {
   edit = new QToolButton(*editButton, TR("edit"), QString::null,
-			 this, SLOT(call_menu()), toolbar, "edit");
+    this, SLOT(call_menu()), toolbar, "edit");
   Q3WhatsThis::add(edit, editText());
   
   edit->setToggleButton(FALSE);
+}
+
+void DiagramWindow::add_grid_cmd(Q3ToolBar *toolbar) {
+  sb_grid = new QSpinBox(GRID_MIN, GRID_MAX, 1, toolbar, TR("grid size"));
+  sb_grid->setSuffix("px");
+  sb_grid->setValue(10);
+  connect(sb_grid, SIGNAL(valueChanged(int)), this, SLOT(new_grid(int)));
+  Q3WhatsThis::add(sb_grid, gridText());
+  
+  grid = new QToolButton(*gridButton, TR("snap to grid"),
+    QString::null, this, SLOT(hit_snap_to_grid()), toolbar, "snap to grid");
+  Q3WhatsThis::add(grid, snapgridText());  
+  grid->setToggleButton(TRUE);  
 }
 
 void DiagramWindow::add_scale_cmd(Q3ToolBar * toolbar) {
@@ -131,6 +150,12 @@ void DiagramWindow::new_scale(int percent) {
     get_view()->set_zoom(np);
     sb_zoom->setValue(percent);
   }
+}
+
+void DiagramWindow::new_grid(int pixels) {
+  sb_grid->setValue(pixels);
+  if (get_view()->grid_size() != pixels)
+    get_view()->set_grid_size(pixels);
 }
 
 void DiagramWindow::fit_scale() {
@@ -165,29 +190,22 @@ void DiagramWindow::save_session(Q3TextStream & st) {
   
   st << "  ";
   ((BrowserNode *) browser_node)->save(st, TRUE, warning);
-  st << "\n    " << width() << ' ' << height() << ' ';
+  st << "\n    " << width() << ' ' << height() << ' '
+     << (unsigned)snap_to_grid() << ' ';
   get_view()->save_session(st);
 }
 
 void DiagramWindow::read_session(char * & st) {
-
-
-
-
-
-
   unsigned w = read_unsigned(st);
 	
   resize(w, read_unsigned(st));
+  set_snap_to_grid(read_unsigned(st));
 
   new_scale(read_unsigned(st));
   get_view()->read_session(st);
 }
 
 void DiagramWindow::session_window_size() {
-
-
-
 }
 
 void DiagramWindow::save(const char * ext, QString & warning,

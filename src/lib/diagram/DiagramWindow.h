@@ -45,6 +45,9 @@ class DiagramView;
 #define SCALE_MIN 30
 #define SCALE_MAX 200
 
+#define GRID_MIN 1
+#define GRID_MAX 100
+
 /* This represents a window that is a diagram, have a canvas and a toolbox */
 class DiagramWindow : public Q3MainWindow {
   Q_OBJECT
@@ -61,13 +64,10 @@ class DiagramWindow : public Q3MainWindow {
     QToolButton * optwinsize;
     QComboBox * viewmode;
     QToolButton * edit;
+    QToolButton * grid;
+    QSpinBox * sb_grid;
 
-
-
-
-
-
-  public:
+public:
     DiagramWindow(BrowserDiagram * br, const QString & s);
 virtual ~DiagramWindow();
   
@@ -79,7 +79,11 @@ virtual ~DiagramWindow();
     void selectOn();
     UmlCode & buttonOn() { return current_button; };
     
+    bool snap_to_grid() const;
+    void set_snap_to_grid(bool);
+    
     void add_edit_button(Q3ToolBar *);
+    void add_grid_cmd(Q3ToolBar *);
     void add_scale_cmd(Q3ToolBar *);
     void change_zoom(int);
     
@@ -98,6 +102,7 @@ virtual ~DiagramWindow();
         
   public slots:
     void new_scale(int);
+    void new_grid(int);
     void fit_scale();
     void optimal_window_size();
     void session_window_size();
@@ -105,6 +110,7 @@ virtual ~DiagramWindow();
     
   protected slots:
     void hit_select();
+    void hit_snap_to_grid();
     
   protected:
     void destroy(bool destroyWindow = true, bool destroySubWindows = true);

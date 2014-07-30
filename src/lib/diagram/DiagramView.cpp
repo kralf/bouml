@@ -23,9 +23,7 @@
 //
 // *************************************************************************
 
-
-
-
+#include <math.h>
 
 #ifndef QT_NO_PRINTER
 #include <qpainter.h>
@@ -95,7 +93,8 @@ DiagramView::DiagramView(QWidget * parent, UmlCanvas * canvas, int i)
     : Q3CanvasView(canvas, parent), id(i), pressedButton(-1), selectArea(0), start(0),
       line(0), arrowBeginning(0), preferred_zoom(0), draw_line(FALSE),
       do_resize(NoCorner), history_protected(FALSE), history_frozen(FALSE),
-      first_move(FALSE), on_arrow_decenter(FALSE), history_index(~0u) {
+      first_move(FALSE), on_arrow_decenter(FALSE), history_index(~0u),
+      grid_size_px(10) {
   // enableClipper(TRUE); => probleme d'affichage
   preferred_size.setWidth(0);
   preferred_size.setHeight(0);
@@ -635,7 +634,7 @@ void DiagramView::add_point(QMouseEvent * e) {
 void DiagramView::contentsMouseMoveEvent(QMouseEvent * e) {
   if (pressedButton == ::Qt::MidButton) {
     scrollBy(mousePressPos.x() - e->pos().x(),
-	     mousePressPos.y() - e->pos().y());
+       mousePressPos.y() - e->pos().y());
     
     mousePressPos = e->pos();
   }
@@ -644,114 +643,116 @@ void DiagramView::contentsMouseMoveEvent(QMouseEvent * e) {
       ensureVisible (e->x(), e->y(), 30, 30);
   
       history_protected = TRUE;
-      
-      int dx = e->pos().x() - mousePressPos.x();
-      int dy = e->pos().y() - mousePressPos.y();
+
+      QPoint d = e->pos()-mousePressPos;
       Q3CanvasItemList selected = selection();
       
       if (! selected.isEmpty()) {
-	// deplace/redimentionne les objets selectionnes
-	if ((selected.count() == 1) && isa_arrow(selected.first())) {
-	  ArrowCanvas * a = ((ArrowCanvas *) selection().first());
-	  ArrowPointCanvas * ap;
-	  
-	  if (on_arrow_decenter) {
-	    a->decenter(e->pos(), decenter_start, decenter_horiz);
-	    window()->package_modified();
-	  }
-	  else if (a->is_decenter(mousePressPos, decenter_start, decenter_horiz)) {
-	    on_arrow_decenter = TRUE;
-	    history_save();
-	    a->decenter(e->pos(), decenter_start, decenter_horiz);
-	    window()->package_modified();
-	  }
-	  else if (a->cut_on_move(ap)) {
-	    // cuts the line in two adding an ArrowPoint which
-	    // becomes the alone selected item allowing to move it
-	    history_save();
-	    unselect(a);
-	    select(a->brk(e->pos()));
-	    window()->package_modified();
-	    first_move = FALSE;
-	  }
-	  else if (ap != 0) {
-	    // replace the selection by 'ap' to move it
-	    unselect(a);
-	    select(ap);
-	    if (first_move) {
-	      history_save();
-	      first_move = FALSE;
-	      moveSelected(dx, dy, TRUE);
-	    }
-	    else
-	      moveSelected(dx, dy, FALSE);
-	  }
-	}
-	else {
-	  if (first_move) {
-	    history_save();
-	    first_move = FALSE;
-	    moveSelected(dx, dy, TRUE);
-	  }
-	  else if (do_resize)
-	    resizeSelected(dx, dy);
-	  else
-	    moveSelected(dx, dy, FALSE);
-	}
-	
-	mousePressPos = e->pos();
+        // deplace/redimentionne les objets selectionnes
+        if ((selected.count() == 1) && isa_arrow(selected.first())) {
+          ArrowCanvas * a = ((ArrowCanvas *) selection().first());
+          ArrowPointCanvas * ap;
+          
+          if (on_arrow_decenter) {
+            a->decenter(snap_to_grid(e->pos()), decenter_start, decenter_horiz);
+            window()->package_modified();
+          }
+          else if (a->is_decenter(mousePressPos, decenter_start, decenter_horiz)) {
+            on_arrow_decenter = TRUE;
+            history_save();
+            a->decenter(snap_to_grid(e->pos()), decenter_start, decenter_horiz);
+            window()->package_modified();
+          }
+          else if (a->cut_on_move(ap)) {
+            // cuts the line in two adding an ArrowPoint which
+            // becomes the alone selected item allowing to move it
+            history_save();
+            unselect(a);
+            select(a->brk(e->pos()));
+            window()->package_modified();
+            first_move = FALSE;
+          }
+          else if (ap != 0) {
+            // replace the selection by 'ap' to move it
+            unselect(a);
+            select(ap);
+            if (first_move) {
+              history_save();
+              first_move = FALSE;
+              d = moveSelected(d.x(), d.y(), TRUE);
+            }
+            else
+              d = moveSelected(d.x(), d.y(), FALSE);
+          }
+        }
+        else {
+          if (first_move) {
+            history_save();
+            first_move = FALSE;
+            d = moveSelected(d.x(), d.y(), TRUE);
+          }
+          else if (do_resize)
+            d = resizeSelected(d.x(), d.y());
+          else
+            d = moveSelected(d.x(), d.y(), FALSE);
+        }
+        
+        mousePressPos += d;
       }
       else if (draw_line) {
-	if (line == 0) {
-	  // premier deplacement : cree la ligne
-	  line = new Q3CanvasLine(canvas());
-	  line->setZ(TOP_Z);
-	  switch ((arrowBeginning == 0) 
-		  ? DiagramItem::Horizontal
-		  : arrowBeginning->allowed_direction(window()->buttonOn())) {
-	  case DiagramItem::Horizontal:
-	    // horizontal line
-	    line->setPoints(mousePressPos.x(), mousePressPos.y(), 
-			    e->pos().x(), mousePressPos.y());
-	    break;
-	  default:
-	    line->setPoints(mousePressPos.x(), mousePressPos.y(), 
-			    e->pos().x(), e->pos().y());
-	  }
-	  line->setPen(::Qt::DotLine);
-	  line->show();
-	  line->setPen(::Qt::SolidLine);
-	}
-	else {
-	  QPoint st = line->startPoint();
-	  
-	  switch ((arrowBeginning == 0) 
-		  ? DiagramItem::Horizontal
-		  : arrowBeginning->allowed_direction(window()->buttonOn())) {
-	  case DiagramItem::Horizontal:
-	    // horizontal line
-	    line->setPoints(st.x(), st.y(), e->pos().x(), st.y());
-	    break;
-	  default:
-	    line->setPoints(st.x(), st.y(), e->pos().x(), e->pos().y());
-	  }
-	}
+        QPoint p = snap_to_grid(e->pos());
+        
+        if (line == 0) {
+          // premier deplacement : cree la ligne
+          line = new Q3CanvasLine(canvas());
+          line->setZ(TOP_Z);
+          switch ((arrowBeginning == 0) 
+            ? DiagramItem::Horizontal
+            : arrowBeginning->allowed_direction(window()->buttonOn())) {
+          case DiagramItem::Horizontal:
+            // horizontal line
+            line->setPoints(mousePressPos.x(), mousePressPos.y(), 
+                p.x(), mousePressPos.y());
+            break;
+          default:
+            line->setPoints(mousePressPos.x(), mousePressPos.y(), 
+                p.x(), p.y());
+          }
+          line->setPen(::Qt::DotLine);
+          line->show();
+          line->setPen(::Qt::SolidLine);
+        }
+        else {
+          QPoint st = line->startPoint();
+          
+          switch ((arrowBeginning == 0) 
+            ? DiagramItem::Horizontal
+            : arrowBeginning->allowed_direction(window()->buttonOn())) {
+          case DiagramItem::Horizontal:
+            // horizontal line
+            line->setPoints(st.x(), st.y(), p.x(), st.y());
+            break;
+          default:
+            line->setPoints(st.x(), st.y(), p.x(), p.y());
+          }
+        }
       }
       else {
-	// la selection est vide, veut probablement la faire en faisant
-	// une zone via la souris, montre cette zone
-	if (selectArea == 0) {
-	  // premier deplacement : cree la zone
-	  selectArea = 
-	    new SelectAreaCanvas(mousePressPos.x(), mousePressPos.y(), dx, dy, canvas());
-	  
-	  selectArea->setZ(TOP_Z);
-	  selectArea->show();
-	}
-	else {
-	  // redimensionne la zone
-	  selectArea->setSize(dx, dy);
-	}
+        // la selection est vide, veut probablement la faire en faisant
+        // une zone via la souris, montre cette zone
+        if (selectArea == 0) {
+          // premier deplacement : cree la zone
+          selectArea = 
+            new SelectAreaCanvas(mousePressPos.x(), mousePressPos.y(),
+                                 d.x(), d.y(), canvas());
+          
+          selectArea->setZ(TOP_Z);
+          selectArea->show();
+        }
+        else {
+          // redimensionne la zone
+          selectArea->setSize(d.x(), d.y());
+        }
       }    
       
       canvas()->update();
@@ -1107,25 +1108,36 @@ void DiagramView::multiple_selection_menu(bool in_model, bool out_model,
   history_protected = FALSE;
 }
 
-void DiagramView::moveSelected(int dx, int dy, bool first) {
+QPoint DiagramView::moveSelected(int dx, int dy, bool first) {
   Q3CanvasItemList selected = selection();
   Q3CanvasItemList::ConstIterator it;
   
   if (first) {
     for (it = selected.begin(); it != selected.end(); ++it)
       QCanvasItemToDiagramItem(*it)
-	->prepare_for_move(do_resize != NoCorner);
+        ->prepare_for_move(do_resize != NoCorner);
     
     selected = selection();    
   }
   
-  for (it = selected.begin(); it != selected.end(); ++it)
+  for (it = selected.begin(); it != selected.end(); ++it) {
+    if (it == selected.begin()) {
+      QPoint p((*it)->x()+dx, (*it)->y()+dy);
+      QPoint q = snap_to_grid(p);
+      
+      dx = dx ? q.x()-(*it)->x() : 0;
+      dy = dy ? q.y()-(*it)->y() : 0;
+    }
+      
     (*it)->moveBy(dx, dy);
+  }
   
   window()->package_modified();
+  
+  return QPoint(dx, dy);
 }
 
-void DiagramView::resizeSelected(int dx, int dy) {
+QPoint DiagramView::resizeSelected(int dx, int dy) {
   Q3CanvasItemList selected = selection();
   Q3CanvasItemList::ConstIterator it;
   
@@ -1139,11 +1151,22 @@ void DiagramView::resizeSelected(int dx, int dy) {
   Q3ValueList<QPoint>::Iterator it2;
   
   for (it = selected.begin(), it2 = previousResizeCorrection.begin();
-       it != selected.end();
-       ++it, ++it2)
+       it != selected.end(); ++it, ++it2) {
+    if (it == selected.begin()) {
+      QPoint p((*it)->x()+QCanvasItemToDiagramItem(*it)->rect().width()+dx,
+              (*it)->y()+QCanvasItemToDiagramItem(*it)->rect().height()+dy);
+      QPoint q = snap_to_grid(p);
+  
+      dx = dx ? q.x()-(*it)->x()-QCanvasItemToDiagramItem(*it)->rect().width() : 0;
+      dy = dy ? q.y()-(*it)->y()-QCanvasItemToDiagramItem(*it)->rect().height() : 0;
+    }
+    
     QCanvasItemToDiagramItem(*it)->resize(do_resize, dx, dy, *it2);
+  }
   
   window()->package_modified();
+  
+  return QPoint(dx, dy);
 }
 
 void DiagramView::keyPressEvent(QKeyEvent * e) {
@@ -1158,357 +1181,357 @@ void DiagramView::keyPressEvent(QKeyEvent * e) {
       e->accept();
 
       if (s == "Move left") {
-	history_protected = TRUE;
-	if (first_move) {
-	  history_save();
-	  first_move = FALSE;
-	  moveSelected(-1, 0, TRUE);
-	}
-	else
-	  moveSelected(-1, 0, FALSE);
+        history_protected = TRUE;
+        if (first_move) {
+          history_save();
+          first_move = FALSE;
+          moveSelected(-effective_grid_size(), 0, TRUE);
+        }
+        else
+          moveSelected(-effective_grid_size(), 0, FALSE);
       }
       else if (s == "Move right") {
-	history_protected = TRUE;
-	if (first_move) {
-	  history_save();
-	  first_move = FALSE;
-	  moveSelected(1, 0, TRUE);
-	}
-	else
-	  moveSelected(1, 0, FALSE);
+        history_protected = TRUE;
+        if (first_move) {
+          history_save();
+          first_move = FALSE;
+          moveSelected(effective_grid_size(), 0, TRUE);
+        }
+        else
+          moveSelected(effective_grid_size(), 0, FALSE);
       }
       else if (s == "Move up") {
-	history_protected = TRUE;
-	if (first_move) {
-	  history_save();
-	  first_move = FALSE;
-	  moveSelected(0, -1, TRUE);
-	}
-	else
-	  moveSelected(0, -1, FALSE);
+        history_protected = TRUE;
+        if (first_move) {
+          history_save();
+          first_move = FALSE;
+          moveSelected(0, -effective_grid_size(), TRUE);
+        }
+        else
+          moveSelected(0, -effective_grid_size(), FALSE);
       }
       else if (s == "Move down") {
-	history_protected = TRUE;
-	if (first_move) {
-	  history_save();
-	  first_move = FALSE;
-	  moveSelected(0, 1, TRUE);
-	}
-	else
-	  moveSelected(0, 1, FALSE);
+        history_protected = TRUE;
+        if (first_move) {
+          history_save();
+          first_move = FALSE;
+          moveSelected(0, effective_grid_size(), TRUE);
+        }
+        else
+          moveSelected(0, effective_grid_size(), FALSE);
       }
       else if (s == "Delete") {
-	history_protected = FALSE;
-	delete_them(TRUE);
+        history_protected = FALSE;
+        delete_them(TRUE);
       }
       else if (s == "Remove from diagram") {
-	history_protected = TRUE;
-	delete_them(FALSE);
+        history_protected = TRUE;
+        delete_them(FALSE);
       }
       else if (s == "Select all") {
-	history_protected = TRUE;
-	select_all();	// clear history_protected
-	return;
+        history_protected = TRUE;
+        select_all();	// clear history_protected
+        return;
       }
       else if (s == "Copy") {
-	history_protected = TRUE;
-	clipboard = window()->copy_selected();
-	copied_from = window()->browser_diagram()->get_type();
+        history_protected = TRUE;
+        clipboard = window()->copy_selected();
+        copied_from = window()->browser_diagram()->get_type();
       }
       else if (s == "Paste") {
-	history_protected = TRUE;
-	if (!clipboard.isEmpty() &&
-	    (copied_from == window()->browser_diagram()->get_type()))
-	  paste();	
+        history_protected = TRUE;
+        if (!clipboard.isEmpty() &&
+            (copied_from == window()->browser_diagram()->get_type()))
+          paste();	
       }
       else if (s == "Cut") {
-	history_protected = TRUE;
-	clipboard = window()->copy_selected();
-	copied_from = window()->browser_diagram()->get_type();
-	delete_them(FALSE);
+        history_protected = TRUE;
+        clipboard = window()->copy_selected();
+        copied_from = window()->browser_diagram()->get_type();
+        delete_them(FALSE);
       }
       else if (s == "Undo") {
-	history_protected = TRUE;
-	if (available_undo())
-	  undo();
-	else
-	  QApplication::beep();
-	return;
+        history_protected = TRUE;
+        if (available_undo())
+          undo();
+        else
+          QApplication::beep();
+        return;
       }
       else if (s == "Redo") {
-	history_protected = TRUE;
-	if (available_redo())
-	  redo();
-	else
-	  QApplication::beep();
-	return;
+        history_protected = TRUE;
+        if (available_redo())
+          redo();
+        else
+          QApplication::beep();
+        return;
       }
       else if (s == "Save") {
-	history_protected = TRUE;
-	UmlWindow::save_it();
+        history_protected = TRUE;
+        UmlWindow::save_it();
       }
       else if (s == "Save as") {
-	if (!UmlWindow::saveas_it())
-	  history_protected = TRUE;
-	else
-	  return;
+        if (!UmlWindow::saveas_it())
+          history_protected = TRUE;
+        else
+          return;
       }
       else if (s == "Close") {
-	UmlWindow::do_close();
-	return;
+        UmlWindow::do_close();
+        return;
       }
       else if (s == "Quit") {
-	UmlWindow::do_quit();
-	return;
+        UmlWindow::do_quit();
+        return;
       }
       else if (s == "Open project") {
-	UmlWindow::load_it();
-	return;
+        UmlWindow::load_it();
+        return;
       }
       else if (s == "Print") {
-	history_protected = TRUE;
-	UmlWindow::print_it();
+        history_protected = TRUE;
+        UmlWindow::print_it();
       }
       else if (s == "Browser search") {
-	history_protected = TRUE;
-	UmlWindow::browser_search_it();
+        history_protected = TRUE;
+        UmlWindow::browser_search_it();
       }
       else if (s == "Arrow geometry") {
-	history_protected = TRUE;
+        history_protected = TRUE;
 
-	const Q3CanvasItemList selected = selection();
-	Q3CanvasItemList::ConstIterator it;
-	Q3CanvasItemList l;
-	
-	// search for arrow beginning
-	for (it = selected.begin(); it != selected.end(); ++it) {
-	  if (isa_arrow(*it)) {
-	    ArrowCanvas * ar = (ArrowCanvas *) *it;
-	    DiagramItem * b;
-	    DiagramItem * e;
-	    
-	    while (ar->extremities(b, e), b->type() == UmlArrowPoint)
-	      ar = ((ArrowPointCanvas *) b)->get_other(ar);
-	    
-	    if ((ar->get_start() != ((ArrowCanvas *) *it)->get_end()) &&
-		(l.find(ar) == l.end()))
-	      l.append(ar);
-	  }
-	}
-	unselect_all();
-	for (it = l.begin(); it != l.end(); ++it) {
-	  // warning : the selected arrow may disapear =>
-	  // select the returned arrow still present
-	  // this allows to do several control-L
-	  select(((ArrowCanvas *) *it)->next_geometry());
-	}
+        const Q3CanvasItemList selected = selection();
+        Q3CanvasItemList::ConstIterator it;
+        Q3CanvasItemList l;
+        
+        // search for arrow beginning
+        for (it = selected.begin(); it != selected.end(); ++it) {
+          if (isa_arrow(*it)) {
+            ArrowCanvas * ar = (ArrowCanvas *) *it;
+            DiagramItem * b;
+            DiagramItem * e;
+            
+            while (ar->extremities(b, e), b->type() == UmlArrowPoint)
+              ar = ((ArrowPointCanvas *) b)->get_other(ar);
+            
+            if ((ar->get_start() != ((ArrowCanvas *) *it)->get_end()) &&
+          (l.find(ar) == l.end()))
+              l.append(ar);
+          }
+        }
+        unselect_all();
+        for (it = l.begin(); it != l.end(); ++it) {
+          // warning : the selected arrow may disapear =>
+          // select the returned arrow still present
+          // this allows to do several control-L
+          select(((ArrowCanvas *) *it)->next_geometry());
+        }
       }
       else if (s == "Optimal scale") {
-	history_protected = TRUE;
-	window()->fit_scale();
-	return;
+        history_protected = TRUE;
+        window()->fit_scale();
+        return;
       }
       else if (s == "Optimal window size") {
-	do_optimal_window_size();
-	return;
+        do_optimal_window_size();
+        return;
       }
       else if (s == "Zoom +") {
-	window()->change_zoom(10);
-	return;
+        window()->change_zoom(10);
+        return;
       }
       else if (s == "Zoom -") {
-	window()->change_zoom(-10);
-	return;
+        window()->change_zoom(-10);
+        return;
       }
       else if (s == "Zoom 100%") {
-	window()->new_scale(100);
-	return;
+        window()->new_scale(100);
+        return;
       }
       else if (s == "Diagram menu") {
-	if (! BrowserNode::popupMenuActive()) {	// Qt bug
-	  BrowserNode::setPopupMenuActive(TRUE);
-	  
-	  menu(QPoint(0, 0));
-	  BrowserNode::setPopupMenuActive(FALSE);
-	}
-	return;
+        if (! BrowserNode::popupMenuActive()) {	// Qt bug
+          BrowserNode::setPopupMenuActive(TRUE);
+          
+          menu(QPoint(0, 0));
+          BrowserNode::setPopupMenuActive(FALSE);
+        }
+        return;
       }
       else {
-	const Q3CanvasItemList selected = selection();
-	int nselected = selected.count();
+        const Q3CanvasItemList selected = selection();
+        int nselected = selected.count();
 
-	if (nselected > 1) {
-	  if (s == "Select linked items") {
-	    history_protected = TRUE;
-	    unselect_all();
-	    
-	    Q3CanvasItemList::ConstIterator it;
-	    
-	    for (it = selected.begin(); it != selected.end(); ++it)
-	      QCanvasItemToDiagramItem(*it)->select_associated();
-	  }
-	  else if ((s == "Edit drawing settings") || 
-		   (s == "Same drawing settings")) {
-	    Q3CanvasItemList::ConstIterator it;
-	    UmlCode k = UmlCodeSup;
-	    Q3PtrList<DiagramItem> l;
-	
-	    for (it = selected.begin(); it != selected.end(); ++it) {
-	      if (! isa_label(*it)) {
-		DiagramItem * item = QCanvasItemToDiagramItem(*it);
-		
-		if (item->has_drawing_settings()) {
-		  // note : relations doesn't have drawing setting, transition and flow have
-		  switch (k) {
-		  case UmlCodeSup:
-		    // first case
-		    k = item->type();
-		    l.append(item);
-		    break;
-		  case UmlArrowPoint:
-		    // mark for several types
-		    break;
-		  default:
-		    if (item->type() == k)
-		      l.append(item);
-		    else {
-		      // several types
-		      l.clear();
-		      k = UmlArrowPoint;	// mark for several types
-		    }
-		  }
-		}
-	      }
-	    }
-	    
-	    switch (l.count()) {
-	    case 0:
-	      break;
-	    case 1:
-	      history_protected = FALSE;
-	      l.first()->apply_shortcut(s);
-	      break;
-	    default:
-	      history_protected = FALSE;
-	      if (s == "Edit drawing settings")
-		l.first()->edit_drawing_settings(l);
-	      else
-		l.first()->same_drawing_settings(l);
-	    }
-	  }
-	  else if (s == "Align bottom") {
-	    history_protected = TRUE;
-	    history_save();
-	    alignBottom();
-	  }
-	  else if (s == "Align center") {
-	    history_protected = TRUE;
-	    history_save();
-	    alignCenter();
-	  }
-	  else if (s == "Align center horizontaly") {
-	    history_protected = TRUE;
-	    history_save();
-	    alignHorizontaly();
-	  }
-	  else if (s == "Align center verticaly") {
-	    history_protected = TRUE;
-	    history_save();
-	    alignVerticaly();
-	  }
-	  else if (s == "Align left") {
-	    history_protected = TRUE;
-	    history_save();
-	    alignLeft();
-	  }
-	  else if (s == "Align right") {
-	    history_protected = TRUE;
-	    history_save();
-	    alignRight();
-	  }
-	  else if (s == "Align top") {
-	    history_protected = TRUE;
-	    history_save();
-	    alignTop();
-	  }
-	  else if (s == "Same width") {
-	    history_protected = TRUE;
-	    history_save();
-	    same_size(TRUE, FALSE);
-	  }
-	  else if (s == "Same height") {
-	    history_protected = TRUE;
-	    history_save();
-	    same_size(FALSE, TRUE);
-	  }
-	  else if (s == "Same size") {
-	    history_protected = TRUE;
-	    history_save();
-	    same_size(TRUE, TRUE);
-	  }
-	  else if (s == "Menu") {
-	    BooL in_model;
-	    BooL out_model;
-	    BooL alignable;
-	    Q3PtrList<DiagramItem> l_drawing_settings;
-	    int n_resize;
-	    
-	    if (multiple_selection_for_menu(in_model, out_model, alignable,
-					    n_resize, l_drawing_settings, selected)) {
-	      multiple_selection_menu(in_model, out_model, alignable,
-				      n_resize, l_drawing_settings);
-	      return;
-	    }
-	  }
-	}
-	else if (nselected == 1) {
-	  DiagramItem * item = 
-	    QCanvasItemToDiagramItem(selected.first());
-	  
-	  if (item != 0) {
-	    if (s == "Select linked items") {
-	      history_protected = TRUE;
-	      unselect_all();
-	      item->select_associated();
-	    }
-	    else if (s == "Menu") {
-	      if (! BrowserNode::popupMenuActive()) {	// Qt bug
-		BrowserNode::setPopupMenuActive(TRUE);
+        if (nselected > 1) {
+          if (s == "Select linked items") {
+            history_protected = TRUE;
+            unselect_all();
+            
+            Q3CanvasItemList::ConstIterator it;
+            
+            for (it = selected.begin(); it != selected.end(); ++it)
+              QCanvasItemToDiagramItem(*it)->select_associated();
+          }
+          else if ((s == "Edit drawing settings") || 
+            (s == "Same drawing settings")) {
+            Q3CanvasItemList::ConstIterator it;
+            UmlCode k = UmlCodeSup;
+            Q3PtrList<DiagramItem> l;
+        
+            for (it = selected.begin(); it != selected.end(); ++it) {
+              if (! isa_label(*it)) {
+          DiagramItem * item = QCanvasItemToDiagramItem(*it);
+          
+          if (item->has_drawing_settings()) {
+            // note : relations doesn't have drawing setting, transition and flow have
+            switch (k) {
+            case UmlCodeSup:
+              // first case
+              k = item->type();
+              l.append(item);
+              break;
+            case UmlArrowPoint:
+              // mark for several types
+              break;
+            default:
+              if (item->type() == k)
+                l.append(item);
+              else {
+                // several types
+                l.clear();
+                k = UmlArrowPoint;	// mark for several types
+              }
+            }
+          }
+              }
+            }
+            
+            switch (l.count()) {
+            case 0:
+              break;
+            case 1:
+              history_protected = FALSE;
+              l.first()->apply_shortcut(s);
+              break;
+            default:
+              history_protected = FALSE;
+              if (s == "Edit drawing settings")
+          l.first()->edit_drawing_settings(l);
+              else
+          l.first()->same_drawing_settings(l);
+            }
+          }
+          else if (s == "Align bottom") {
+            history_protected = TRUE;
+            history_save();
+            alignBottom();
+          }
+          else if (s == "Align center") {
+            history_protected = TRUE;
+            history_save();
+            alignCenter();
+          }
+          else if (s == "Align center horizontaly") {
+            history_protected = TRUE;
+            history_save();
+            alignHorizontaly();
+          }
+          else if (s == "Align center verticaly") {
+            history_protected = TRUE;
+            history_save();
+            alignVerticaly();
+          }
+          else if (s == "Align left") {
+            history_protected = TRUE;
+            history_save();
+            alignLeft();
+          }
+          else if (s == "Align right") {
+            history_protected = TRUE;
+            history_save();
+            alignRight();
+          }
+          else if (s == "Align top") {
+            history_protected = TRUE;
+            history_save();
+            alignTop();
+          }
+          else if (s == "Same width") {
+            history_protected = TRUE;
+            history_save();
+            same_size(TRUE, FALSE);
+          }
+          else if (s == "Same height") {
+            history_protected = TRUE;
+            history_save();
+            same_size(FALSE, TRUE);
+          }
+          else if (s == "Same size") {
+            history_protected = TRUE;
+            history_save();
+            same_size(TRUE, TRUE);
+          }
+          else if (s == "Menu") {
+            BooL in_model;
+            BooL out_model;
+            BooL alignable;
+            Q3PtrList<DiagramItem> l_drawing_settings;
+            int n_resize;
+            
+            if (multiple_selection_for_menu(in_model, out_model, alignable,
+                    n_resize, l_drawing_settings, selected)) {
+              multiple_selection_menu(in_model, out_model, alignable,
+                    n_resize, l_drawing_settings);
+              return;
+            }
+          }
+        }
+        else if (nselected == 1) {
+          DiagramItem * item = 
+            QCanvasItemToDiagramItem(selected.first());
+          
+          if (item != 0) {
+            if (s == "Select linked items") {
+              history_protected = TRUE;
+              unselect_all();
+              item->select_associated();
+            }
+            else if (s == "Menu") {
+              if (! BrowserNode::popupMenuActive()) {	// Qt bug
+          BrowserNode::setPopupMenuActive(TRUE);
     
-		item->menu(item->rect().center());
-		BrowserNode::setPopupMenuActive(FALSE);
-	      }
-	      return;
-	    }
-	    else if (s == "Edit") {
-	      unselect_all();
-	      item->open();
-	      return;
-	    }
-	    else {
-	      history_protected = FALSE;
-	      item->apply_shortcut(s);
-	    }
-	  }
-	  else if (s == "Menu") {
-	    if (! BrowserNode::popupMenuActive()) {	// Qt bug
-	      BrowserNode::setPopupMenuActive(TRUE);
-	      
-	      menu(QPoint(0, 0));
-	      BrowserNode::setPopupMenuActive(FALSE);
-	    }
-	    return;
-	  }
-	}
-	else if (s == "Menu") {
-	  if (! BrowserNode::popupMenuActive()) {	// Qt bug
-	    BrowserNode::setPopupMenuActive(TRUE);
-	    
-	    menu(QPoint(0,0));
-	    BrowserNode::setPopupMenuActive(FALSE);
-	  }
-	  return;
-	}
+          item->menu(item->rect().center());
+          BrowserNode::setPopupMenuActive(FALSE);
+              }
+              return;
+            }
+            else if (s == "Edit") {
+              unselect_all();
+              item->open();
+              return;
+            }
+            else {
+              history_protected = FALSE;
+              item->apply_shortcut(s);
+            }
+          }
+          else if (s == "Menu") {
+            if (! BrowserNode::popupMenuActive()) {	// Qt bug
+              BrowserNode::setPopupMenuActive(TRUE);
+              
+              menu(QPoint(0, 0));
+              BrowserNode::setPopupMenuActive(FALSE);
+            }
+            return;
+          }
+        }
+        else if (s == "Menu") {
+          if (! BrowserNode::popupMenuActive()) {	// Qt bug
+            BrowserNode::setPopupMenuActive(TRUE);
+            
+            menu(QPoint(0,0));
+            BrowserNode::setPopupMenuActive(FALSE);
+          }
+          return;
+        }
       }
       canvas()->update();
       history_protected = FALSE;
@@ -1663,6 +1686,27 @@ void DiagramView::preferred_size_zoom() {
   }
 }
 
+void DiagramView::set_grid_size(unsigned s) {
+  grid_size_px = s;
+  window()->new_grid(grid_size_px);
+}
+
+unsigned DiagramView::grid_size() const {
+  return grid_size_px;
+}
+
+unsigned DiagramView::effective_grid_size() const {
+  return window()->snap_to_grid() ? grid_size_px : 1;
+}
+
+QPoint DiagramView::snap_to_grid(const QPoint& p) {
+  if (window()->snap_to_grid())
+    return QPoint(round(p.x()/(double)grid_size_px)*(double)grid_size_px,
+                  round(p.y()/(double)grid_size_px)*(double)grid_size_px);
+  else
+    return p;
+}
+    
 void DiagramView::set_format(int f) {
   if (f != (int) window()->browser_diagram()->get_format()) {
     window()->browser_diagram()->set_format((CanvasFormat) f);
@@ -2435,7 +2479,8 @@ void DiagramView::save_session(Q3TextStream & st) {
   st << (int) (((UmlCanvas *) canvas())->zoom() * 100)
      << ' ' << (int) window()->browser_diagram()->get_format() // useless
      << ' ' << verticalScrollBar()->value()
-     << ' ' << horizontalScrollBar()->value() << '\n';
+     << ' ' << horizontalScrollBar()->value() 
+     << ' ' << grid_size() << '\n';
 }
 
 void DiagramView::read_session(char * & st) {
@@ -2448,6 +2493,7 @@ void DiagramView::read_session(char * & st) {
   }
   verticalScrollBar()->setValue(read_unsigned(st));
   horizontalScrollBar()->setValue(read_unsigned(st));
+  set_grid_size(read_unsigned(st));
   canvas()->update();
   {
     extern QApplication * theApp;

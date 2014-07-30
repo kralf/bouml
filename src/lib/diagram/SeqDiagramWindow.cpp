@@ -71,6 +71,7 @@ SeqDiagramWindow::SeqDiagramWindow(const QString & s, BrowserSeqDiagram * b, int
   addToolBar(toolbar, TR("Toolbar"), Qt::DockTop, TRUE);
   
   add_edit_button(toolbar);
+  toolbar->addSeparator();
   
   select =
     new QToolButton(*selectButton, TR("Select"), QString::null,
@@ -206,7 +207,8 @@ SeqDiagramWindow::SeqDiagramWindow(const QString & s, BrowserSeqDiagram * b, int
   Q3WhatsThis::add(image, imageText());
   
   toolbar->addSeparator();
-  
+  add_grid_cmd(toolbar);  
+  toolbar->addSeparator();
   add_scale_cmd(toolbar);
   
   //

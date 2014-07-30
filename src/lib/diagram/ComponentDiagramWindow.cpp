@@ -63,6 +63,7 @@ ComponentDiagramWindow::ComponentDiagramWindow(const QString & s, BrowserCompone
   addToolBar(toolbar, TR("Toolbar"), Qt::DockTop, TRUE);
   
   add_edit_button(toolbar);
+  toolbar->addSeparator();
   
   select =
     new QToolButton(*selectButton, TR("Select"), QString::null,
@@ -138,7 +139,8 @@ ComponentDiagramWindow::ComponentDiagramWindow(const QString & s, BrowserCompone
   Q3WhatsThis::add(image, imageText());
   
   toolbar->addSeparator();
-  
+  add_grid_cmd(toolbar);  
+  toolbar->addSeparator();
   add_scale_cmd(toolbar);
   
   //

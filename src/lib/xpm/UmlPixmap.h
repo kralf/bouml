@@ -74,6 +74,7 @@ extern QPixmap * pinButton;
 extern QPixmap * expansionregionButton;
 extern QPixmap * expansionnodeButton;
 extern QPixmap * imageButton;
+extern QPixmap * gridButton;
 
 // browser icons
 

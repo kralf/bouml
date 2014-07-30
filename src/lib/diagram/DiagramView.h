@@ -77,9 +77,7 @@ class DiagramView : public Q3CanvasView {
     Q3ValueList<QPoint> previousResizeCorrection;
     Q3PtrList<QByteArray> history;
     unsigned history_index;
-
-
-
+    unsigned grid_size_px;
 
     static Q3CString clipboard;
     static UmlCode copied_from;
@@ -95,6 +93,10 @@ class DiagramView : public Q3CanvasView {
     void abort_line_construction();
     void relation_to_simplerelation(UmlCode k);
     void set_zoom(double);
+    void set_grid_size(unsigned);
+    unsigned grid_size() const;
+    unsigned effective_grid_size() const;
+    QPoint snap_to_grid(const QPoint&);
     void fit_scale();
     void preferred_size_zoom();
     bool has_preferred_size_zoom() { return preferred_zoom != 0; }
@@ -153,8 +155,8 @@ class DiagramView : public Q3CanvasView {
     virtual void contentsMouseReleaseEvent(QMouseEvent *);
     virtual void contentsMouseMoveEvent(QMouseEvent *);
     virtual void contentsWheelEvent(QWheelEvent *);
-    void moveSelected(int dx, int dy, bool first);
-    void resizeSelected(int dx, int dy);
+    QPoint moveSelected(int dx, int dy, bool first);
+    QPoint resizeSelected(int dx, int dy);
     void add_point(QMouseEvent * e);
     bool multiple_selection_for_menu(BooL & in_model, BooL & out_model,
 				     BooL & alignable, int & n_resize,
