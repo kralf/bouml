@@ -1,3 +1,9 @@
+bouml (4.21-11) unstable; urgency=low
+
+  * Fixed about dialog
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 30 Jul 2014 15:06:00 +0100
+ 
 bouml (4.21-10) unstable; urgency=low
 
   * Added snap-to-grid functionality to all diagrams

@@ -37,12 +37,13 @@
 #include <Q3HBoxLayout>
 
 #include "About.h"
+#include "Config.h"
 #include "bp_xpm.xpm"
 #include "UmlDesktop.h"
 #include "translate.h"
 
-AboutDialog::AboutDialog() : QDialog(0, "About bouml-ng", TRUE) {
-  setCaption(TR("About bouml-ng"));
+AboutDialog::AboutDialog() : QDialog(0, "About " PROJECT_NAME, TRUE) {
+  setCaption(TR("About " PROJECT_NAME));
   //move(p);
   
   Q3VBoxLayout * vbox = new Q3VBoxLayout(this);  
@@ -59,31 +60,16 @@ AboutDialog::AboutDialog() : QDialog(0, "About bouml-ng", TRUE) {
  // lbp->setPixmap(bp);
 //  hbox->addWidget(lbp);
   hbox->addWidget(new QLabel("  ", this));
-  // Replacing about to bouml-ng
-  const char htmltext[] = "<p>bouml-ng</p>\n"
-		  	"<p>This project is a fork of\n"
-			"Bruno Pages's work, BoUML:\n"
-			"<i>http://bouml.sourceforge.net/</i></p>\n"
-			"<p>bouml-ng focus is to port BoUML to Qt4\n"
-			"and to maintain it as a community</p>\n"
-			"<p>Join us at:<br>\n"
-			"https://sourceforge.net/projects/bouml-ng/<br>\n"
-			"#bouml-ng@irc.freenode.net</p>\n\n\n";
 
-/*
-  const char * htmltext = ("BOUML release <b>4.22.2</b><br>\n"
-			   "<br>\n"
-			   "<i>http://bouml.free.fr</i><br>\n"
-			   "<i>http://bouml.sourceforge.net/</i><br>\n"
-			   "<br>\n"
-			   "Bruno Pages (<i>bouml@free.fr</i>)");
-  const char * sizetext = ("BOUML release <b>4.88.88 patch 1</b>\n"
-			   "\n"
-			   "http://bouml.free.fr\n"
-			   "http://bouml.sourceforge.net/____\n"
-			   "\n"
-			   "Bruno Pages (bouml@free.fr)\n\n");
-			   */
+  QString htmltext;
+  htmltext.sprintf("%s <b>%d.%d-%d</b> release <b>%s</b><br>\n"
+                   "<br>\n"
+                   "<i>%s</i><br>\n"
+                   "<br>\n"
+                   "%s (<i>%s</i>)",
+    PROJECT_NAME, PROJECT_MAJOR, PROJECT_MINOR, PROJECT_REVISION, PROJECT_RELEASE,
+    PROJECT_HOME, PROJECT_ADMIN, PROJECT_CONTACT);
+                            
   Q3TextView * tx =
     new Q3TextView(htmltext, QString::null, this);
   QFont fnt = tx->font();

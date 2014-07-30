@@ -157,7 +157,7 @@ int ToolCom::run(const char * cmd, BrowserNode * bn,
 
   QString s;
   
-  s = "PATH=$PATH:" TOOL_PATH " && ";
+  s = "PATH=$PATH:" PROJECT_PLUGIN_PATH " && ";
   s += cmd;
   s += ' ';
   s += QString::number(port);
