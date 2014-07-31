@@ -72,6 +72,7 @@ QPixmap * expansionregionButton;
 QPixmap * expansionnodeButton;
 QPixmap * imageButton;
 QPixmap * gridButton;
+QPixmap * snapGridButton;
   
 // browser icons
 
@@ -383,6 +384,7 @@ void init_pixmaps()
 #include "expansionnode_button.xpm"
 #include "image_button.xpm"
 #include "grid_button.xpm"
+#include "snap_grid_button.xpm"
 
   noteButton = new QPixmap((const char **) note_button);
   textButton = new QPixmap((const char **) text_button);
@@ -452,6 +454,7 @@ void init_pixmaps()
   expansionnodeButton = new QPixmap((const char **) expansionnode_button);
   imageButton = new QPixmap((const char **) image_button);
   gridButton = new QPixmap((const char **) grid_button);
+  snapGridButton = new QPixmap((const char **) snap_grid_button);
   
   // browser icons
   

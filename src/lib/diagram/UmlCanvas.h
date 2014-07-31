@@ -64,11 +64,12 @@ class UmlCanvas : public Q3Canvas {
     Q3CanvasLine * hlimit;
     Q3CanvasLine * vlimit;
     
+    virtual void drawBackground(QPainter& painter, const QRect& clip);
     void update_limits();
 
   public:
     UmlCanvas(CanvasFormat f, BrowserDiagram * br_diag);
-virtual ~UmlCanvas();
+    virtual ~UmlCanvas();
     
     Q3CanvasItem * collision(const QPoint &) const;
     Q3CanvasItem * collision(const QPoint &, int except) const;
@@ -79,6 +80,10 @@ virtual ~UmlCanvas();
 
     void del(Q3CanvasItem * i);
     
+    void set_show_grid(bool);
+    bool show_grid() const;
+    void set_grid_size(unsigned);
+    unsigned grid_size() const;
     void set_zoom(double zm);
     void zoom_end() { do_scale = FALSE; };
     bool do_zoom() const { return do_scale; };

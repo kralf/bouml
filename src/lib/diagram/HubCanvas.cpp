@@ -92,6 +92,10 @@ UmlCode HubCanvas::type() const {
   return UmlHub;
 }
 
+QPoint HubCanvas::anchor() const {
+  return center();
+}
+
 void HubCanvas::open() {
 }
 

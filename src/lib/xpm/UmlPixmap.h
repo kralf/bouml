@@ -75,6 +75,7 @@ extern QPixmap * expansionregionButton;
 extern QPixmap * expansionnodeButton;
 extern QPixmap * imageButton;
 extern QPixmap * gridButton;
+extern QPixmap * snapGridButton;
 
 // browser icons
 

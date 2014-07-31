@@ -1,3 +1,10 @@
+bouml (4.21-12) unstable; urgency=low
+
+  * Fixed snap-to-grid resizing
+  * Added grid background drawing functionality
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 31 Jul 2014 12:41:00 +0100
+ 
 bouml (4.21-11) unstable; urgency=low
 
   * Fixed about dialog

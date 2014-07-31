@@ -77,7 +77,6 @@ class DiagramView : public Q3CanvasView {
     Q3ValueList<QPoint> previousResizeCorrection;
     Q3PtrList<QByteArray> history;
     unsigned history_index;
-    unsigned grid_size_px;
 
     static Q3CString clipboard;
     static UmlCode copied_from;
@@ -93,6 +92,10 @@ class DiagramView : public Q3CanvasView {
     void abort_line_construction();
     void relation_to_simplerelation(UmlCode k);
     void set_zoom(double);
+    void set_show_grid(bool);
+    bool show_grid() const;
+    void set_snap_grid(bool);
+    bool snap_grid() const;
     void set_grid_size(unsigned);
     unsigned grid_size() const;
     unsigned effective_grid_size() const;

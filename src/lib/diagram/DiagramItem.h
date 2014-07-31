@@ -81,6 +81,7 @@ class DiagramItem : public Labeled<DiagramItem> {
     virtual BrowserNode * get_bn() const;
     virtual UmlCanvas * the_canvas() const = 0;
     virtual QPoint center() const = 0;
+    virtual QPoint anchor() const;
     virtual QRect rect() const = 0;
     virtual bool contains(int, int) const = 0;
     virtual void open() = 0;

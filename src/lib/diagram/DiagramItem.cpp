@@ -54,6 +54,10 @@ BrowserNode * DiagramItem::get_bn() const {
   return 0;
 }
 
+QPoint DiagramItem::anchor() const {
+  return rect().topLeft();
+}
+
 void DiagramItem::delete_available(BooL &, BooL &) const {
 }
 

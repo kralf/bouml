@@ -93,8 +93,7 @@ DiagramView::DiagramView(QWidget * parent, UmlCanvas * canvas, int i)
     : Q3CanvasView(canvas, parent), id(i), pressedButton(-1), selectArea(0), start(0),
       line(0), arrowBeginning(0), preferred_zoom(0), draw_line(FALSE),
       do_resize(NoCorner), history_protected(FALSE), history_frozen(FALSE),
-      first_move(FALSE), on_arrow_decenter(FALSE), history_index(~0u),
-      grid_size_px(10) {
+      first_move(FALSE), on_arrow_decenter(FALSE), history_index(~0u) {
   // enableClipper(TRUE); => probleme d'affichage
   preferred_size.setWidth(0);
   preferred_size.setHeight(0);
@@ -1111,6 +1110,7 @@ void DiagramView::multiple_selection_menu(bool in_model, bool out_model,
 QPoint DiagramView::moveSelected(int dx, int dy, bool first) {
   Q3CanvasItemList selected = selection();
   Q3CanvasItemList::ConstIterator it;
+  QPoint r;
   
   if (first) {
     for (it = selected.begin(); it != selected.end(); ++it)
@@ -1122,24 +1122,29 @@ QPoint DiagramView::moveSelected(int dx, int dy, bool first) {
   
   for (it = selected.begin(); it != selected.end(); ++it) {
     if (it == selected.begin()) {
-      QPoint p((*it)->x()+dx, (*it)->y()+dy);
+      r = QCanvasItemToDiagramItem(*it)->anchor();
+      QPoint p(r.x()+dx, r.y()+dy);
       QPoint q = snap_to_grid(p);
       
-      dx = dx ? q.x()-(*it)->x() : 0;
-      dy = dy ? q.y()-(*it)->y() : 0;
+      dx = dx ? q.x()-r.x() : 0;
+      dy = dy ? q.y()-r.y() : 0;
     }
       
     (*it)->moveBy(dx, dy);
+    
+    if (it == selected.begin())
+      r = QCanvasItemToDiagramItem(*it)->anchor()-r;
   }
   
   window()->package_modified();
   
-  return QPoint(dx, dy);
+  return r;
 }
 
 QPoint DiagramView::resizeSelected(int dx, int dy) {
   Q3CanvasItemList selected = selection();
   Q3CanvasItemList::ConstIterator it;
+  QPoint r;
   
   if (previousResizeCorrection.isEmpty()) {
     QPoint p(0, 0);
@@ -1153,20 +1158,23 @@ QPoint DiagramView::resizeSelected(int dx, int dy) {
   for (it = selected.begin(), it2 = previousResizeCorrection.begin();
        it != selected.end(); ++it, ++it2) {
     if (it == selected.begin()) {
-      QPoint p((*it)->x()+QCanvasItemToDiagramItem(*it)->rect().width()+dx,
-              (*it)->y()+QCanvasItemToDiagramItem(*it)->rect().height()+dy);
+      r = QCanvasItemToDiagramItem(*it)->rect().bottomRight();
+      QPoint p(r.x()+dx, r.y()+dy);
       QPoint q = snap_to_grid(p);
   
-      dx = dx ? q.x()-(*it)->x()-QCanvasItemToDiagramItem(*it)->rect().width() : 0;
-      dy = dy ? q.y()-(*it)->y()-QCanvasItemToDiagramItem(*it)->rect().height() : 0;
+      dx = dx ? q.x()-r.x() : 0;
+      dy = dy ? q.y()-r.y() : 0;
     }
     
     QCanvasItemToDiagramItem(*it)->resize(do_resize, dx, dy, *it2);
+    
+    if (it == selected.begin())
+      r = QCanvasItemToDiagramItem(*it)->rect().bottomRight()-r;
   }
   
   window()->package_modified();
   
-  return QPoint(dx, dy);
+  return r;
 }
 
 void DiagramView::keyPressEvent(QKeyEvent * e) {
@@ -1686,23 +1694,39 @@ void DiagramView::preferred_size_zoom() {
   }
 }
 
+void DiagramView::set_show_grid(bool s) {
+  window()->set_show_grid(s);
+}
+
+bool DiagramView::show_grid() const {
+  return window()->show_grid();
+}
+
+void DiagramView::set_snap_grid(bool s) {
+  window()->set_snap_grid(s);
+}
+
+bool DiagramView::snap_grid() const {
+  return window()->snap_grid();
+}
+
 void DiagramView::set_grid_size(unsigned s) {
-  grid_size_px = s;
-  window()->new_grid(grid_size_px);
+  window()->set_grid_size(s);
 }
 
 unsigned DiagramView::grid_size() const {
-  return grid_size_px;
+  return window()->grid_size();
 }
 
 unsigned DiagramView::effective_grid_size() const {
-  return window()->snap_to_grid() ? grid_size_px : 1;
+  return window()->snap_grid() ? grid_size() : 1;
 }
 
 QPoint DiagramView::snap_to_grid(const QPoint& p) {
-  if (window()->snap_to_grid())
-    return QPoint(round(p.x()/(double)grid_size_px)*(double)grid_size_px,
-                  round(p.y()/(double)grid_size_px)*(double)grid_size_px);
+  double s = grid_size();
+  
+  if (window()->snap_grid())
+    return QPoint(round(p.x()/s)*s, round(p.y()/s)*s);
   else
     return p;
 }
@@ -2480,6 +2504,8 @@ void DiagramView::save_session(Q3TextStream & st) {
      << ' ' << (int) window()->browser_diagram()->get_format() // useless
      << ' ' << verticalScrollBar()->value()
      << ' ' << horizontalScrollBar()->value() 
+     << ' ' << (unsigned)show_grid()
+     << ' ' << (unsigned)snap_grid()
      << ' ' << grid_size() << '\n';
 }
 
@@ -2493,6 +2519,8 @@ void DiagramView::read_session(char * & st) {
   }
   verticalScrollBar()->setValue(read_unsigned(st));
   horizontalScrollBar()->setValue(read_unsigned(st));
+  set_show_grid(read_unsigned(st));
+  set_snap_grid(read_unsigned(st));
   set_grid_size(read_unsigned(st));
   canvas()->update();
   {

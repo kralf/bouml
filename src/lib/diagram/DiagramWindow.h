@@ -64,7 +64,8 @@ class DiagramWindow : public Q3MainWindow {
     QToolButton * optwinsize;
     QComboBox * viewmode;
     QToolButton * edit;
-    QToolButton * grid;
+    QToolButton * b_show_grid;
+    QToolButton * b_snap_grid;
     QSpinBox * sb_grid;
 
 public:
@@ -79,8 +80,12 @@ virtual ~DiagramWindow();
     void selectOn();
     UmlCode & buttonOn() { return current_button; };
     
-    bool snap_to_grid() const;
-    void set_snap_to_grid(bool);
+    bool show_grid() const;
+    void set_show_grid(bool);
+    bool snap_grid() const;
+    void set_snap_grid(bool);
+    unsigned grid_size() const;
+    void set_grid_size(unsigned);
     
     void add_edit_button(Q3ToolBar *);
     void add_grid_cmd(Q3ToolBar *);
@@ -102,7 +107,9 @@ virtual ~DiagramWindow();
         
   public slots:
     void new_scale(int);
-    void new_grid(int);
+    void new_show_grid(bool);
+    void new_snap_grid(bool);
+    void new_grid_size(int);
     void fit_scale();
     void optimal_window_size();
     void session_window_size();
@@ -110,7 +117,8 @@ virtual ~DiagramWindow();
     
   protected slots:
     void hit_select();
-    void hit_snap_to_grid();
+    void hit_show_grid();
+    void hit_snap_grid();
     
   protected:
     void destroy(bool destroyWindow = true, bool destroySubWindows = true);

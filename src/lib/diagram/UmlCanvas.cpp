@@ -23,9 +23,8 @@
 //
 // *************************************************************************
 
-
-
-
+#include <QPainter>
+#include <QVarLengthArray>
 
 #include "UmlCanvas.h"
 #include "UmlGlobal.h"
@@ -106,6 +105,27 @@ void UmlCanvas::set_view(DiagramView * v) {
   update_limits();
   vlimit->show();
   hlimit->show();
+}
+
+void UmlCanvas::drawBackground(QPainter& painter, const QRect& clip) {
+  if (show_grid()) {
+    int s = grid_size();
+    
+    qreal left = int(clip.left())-(int(clip.left()) % s);
+    qreal top = int(clip.top())-(int(clip.top()) % s);
+    
+    QVarLengthArray<QLineF, 100> lines;
+    
+    for (qreal x = left; x < clip.right(); x += s)
+      lines.append(QLineF(x, clip.top(), x, clip.bottom()));
+    for (qreal y = top; y < clip.bottom(); y += s)
+      lines.append(QLineF(clip.left(), y, clip.right(), y));
+    
+    painter.save();
+    painter.setPen(Qt::lightGray);
+    painter.drawLines(lines.data(), lines.size());
+    painter.restore();
+  }
 }
 
 void UmlCanvas::update_limits() {
@@ -228,6 +248,22 @@ void UmlCanvas::unselect_all() {
   selected.clear();
 }
 
+void UmlCanvas::set_show_grid(bool s) {
+  get_view()->set_show_grid(s);
+}
+
+bool UmlCanvas::show_grid() const {
+  return get_view()->show_grid();
+}
+
+void UmlCanvas::set_grid_size(unsigned s) {
+  get_view()->set_grid_size(s);
+}
+
+unsigned UmlCanvas::grid_size() const {
+  return get_view()->grid_size();
+}
+    
 void UmlCanvas::set_zoom(double zm) {
   do_scale = TRUE;
   zoom_value = zm;

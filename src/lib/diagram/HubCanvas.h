@@ -40,6 +40,7 @@ class HubCanvas : public DiagramCanvas {
     virtual void draw(QPainter & p);
     
     virtual UmlCode type() const;
+    virtual QPoint anchor() const;
     virtual void delete_available(BooL & in_model, BooL & out_model) const;
     virtual void change_scale();
     virtual void open();
